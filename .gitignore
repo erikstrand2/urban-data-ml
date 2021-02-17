@@ -1,3 +1,18 @@
+# Data folders
+*/data
+*/output
+
+# Data types
+*.csv
+*.xls
+*.docx
+*.pdf
+*.shp
+*.dbf
+*.shx
+*.json
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
