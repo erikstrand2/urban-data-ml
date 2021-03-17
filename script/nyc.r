@@ -6,9 +6,8 @@ library(sf)
 library(ggmap)
 library(lubridate)
 
-# Google API key
-#api <- "mykey"
-#register_google(key = api)
+api <- "AIzaSyBG4AWOB3g0oh4-DJmylPpUM4dQ6URBf5M"
+register_google(key = api)
 
 nyc_ih_raw <- read_csv("../data/final project/HPD Inclusionary Housing Sites.csv")
 nyc_all_housing <- 
