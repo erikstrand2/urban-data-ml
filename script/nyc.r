@@ -6,10 +6,11 @@ library(sf)
 library(ggmap)
 library(lubridate)
 
-api <- "AIzaSyBG4AWOB3g0oh4-DJmylPpUM4dQ6URBf5M"
+api <- # removed for privacy reasons
 register_google(key = api)
 
-nyc_ih_raw <- read_csv("../data/final project/HPD Inclusionary Housing Sites.csv")
+nyc_ih_raw <- 
+  read_csv("../data/final project/HPD Inclusionary Housing Sites.csv")
 nyc_all_housing <- 
   read_csv("../data/final project/Housing_New_York_Units_by_Building.csv")
 nyc_zip <- read_sf("../data/zipcode") %>% select(zip = MODZCTA)
@@ -39,8 +40,8 @@ nyc_ih_points <-
     aff_units = `All Counted Units`, 
     perc_aff = ifelse(`Program_Type` == "VIH", 30, 25), 
     ami = ifelse(`Program_Type` == "VIH", 80, 60)
-  ) %>% 
-  filter(year > 2014)
+  ) 
+  # filter(year > 2014)
 
 test <- 
   nyc_ih_points %>% 
@@ -57,6 +58,10 @@ test <-
     x = lon, 
     y = lat
   )
+
+nyc_ih_points_2015 <- 
+  nyc_ih_points %>% 
+  filter(year > 2014)
 
 nyc_ih_points_zip <- 
   nyc_ih_points %>% 
@@ -79,4 +84,27 @@ nyc_ih_zip <-
     zip = as.integer(zip)
   )
 
+nyc_ih_points_zip_2015 <- 
+  nyc_ih_points_2015 %>% 
+  bind_rows(test) %>% 
+  unique() %>% 
+  drop_na(x) %>% 
+  st_as_sf(coords = c("x", "y")) %>% 
+  st_set_crs(4326) %>% 
+  st_transform(crs = st_crs(nyc_zip)) %>% 
+  st_join(nyc_zip) %>% 
+  group_by(zip, perc_aff, ami) %>% 
+  summarize_at(vars(c(eli:aff_units)), ~ sum(., na.rm = TRUE)) %>% 
+  st_drop_geometry()
+
+nyc_ih_zip_2015 <- 
+  nyc_zip %>% 
+  left_join(nyc_ih_points_zip_2015, by = "zip") %>% 
+  mutate(
+    aff_units = ifelse(is.na(aff_units), 0, aff_units),
+    zip = as.integer(zip)
+  )
+
 st_write(nyc_ih_zip, "../data/final project/CLEAN_DATA/nyc/nyc.shp")
+st_write(nyc_ih_zip_2015, "../data/final project/CLEAN_DATA/nyc/nyc_2015.shp")
+
